@@ -1,41 +1,42 @@
-# Traductor de Lengua de Señas (LSM) con Inteligencia Artificial
+# Traductor de Lengua de Señas Mexicana (LSM) con Inteligencia Artificial
 
-Aplicación de **visión por computadora** que detecta la posición de las manos en tiempo real y traduce gestos estáticos y dinámicos de la **Lengua de Señas Mexicana (LSM)** a letras en español.
-
-Esta versión es un **fork modificado y optimizado** del proyecto original de dominio público. Fue adaptada para funcionar de forma estable en entornos modernos con **Python 3.13** y **MediaPipe 0.10.35+**, sustituyendo la API obsoleta `mp.solutions` por **MediaPipe Tasks** y corrigiendo errores de renderizado de landmarks (`AttributeError: module 'mediapipe' has no attribute 'solutions'`).
+Aplicación de visión por computadora que detecta la posición de las manos en tiempo real y traduce gestos del abecedario de la Lengua de Señas Mexicana (LSM) a letras y palabras en español, usando Machine Learning y Procesamiento de Lenguaje Natural.
 
 ---
 
 ## Características
 
-- Detección de manos en vivo con la cámara web
-- Cálculo de ángulos entre articulaciones para identificar dedos extendidos
-- Reconocimiento de letras estáticas (A, B, D, E, I, O, U, etc.)
-- Detección de la letra **J** por movimiento del meñique
-- Dibujo manual de landmarks con OpenCV (círculos verdes)
-- Compatible con Python 3.13 y versiones recientes de MediaPipe
+- Detección de manos en tiempo real con la cámara web
+- Cálculo de ángulos entre articulaciones usando la ley de cosenos
+- Clasificación de señas mediante un modelo entrenado con scikit-learn (Random Forest)
+- Reconocimiento de 15 letras del abecedario LSM: A, B, D, E, F, I, K, L, N, O, P, U, V, W, Y
+- Detección dinámica de la letra J por movimiento del meñique
+- Acumulación de letras para formar palabras completas en pantalla
+- La letra B funciona como borrado (backspace)
+- Compatible con Python 3.13 y MediaPipe 0.10.35
 
 ---
 
 ## Requisitos
 
-- Python **3.13** (recomendado)
+- Python 3.13
 - Cámara web
-- Windows, Linux o macOS
+- Windows 10/11
 
 ---
 
 ## Instalación
 
-Clona o descarga el repositorio, abre una terminal en la carpeta raíz del proyecto y ejecuta estos comandos en orden:
+Abre una terminal en la carpeta raíz del proyecto y ejecuta:
 
 ```bash
-pip install --only-binary=:all: mediapipe
+pip install opencv-python
+pip install mediapipe==0.10.35
 pip install "numpy<2"
-pip install -r requirements.txt
+pip install scikit-learn joblib pandas
 ```
 
-Descarga el modelo de manos necesario para MediaPipe Tasks (solo la primera vez):
+Descarga el modelo de manos de MediaPipe (solo la primera vez):
 
 ```bash
 python descargar_modelo_mano.py
@@ -45,57 +46,54 @@ python descargar_modelo_mano.py
 
 ## Uso
 
-Ejecuta el script principal desde la raíz del proyecto:
+Ejecuta el script principal:
 
 ```bash
 python "letra en movimiento.py"
 ```
 
-También puedes usar la versión con detección de más letras:
-
-```bash
-python app.py
-```
-
-- Pulsa **ESC** para cerrar la ventana de la cámara.
+- Haz una seña y mantenla quieta ~0.6 segundos para confirmar la letra
+- La letra detectada aparece en la esquina superior izquierda
+- La palabra formada se muestra en la parte inferior
+- Presiona ESC para cerrar
 
 ---
 
 ## Estructura del proyecto
 
 ```
-├── app.py                      # Traductor con más letras del abecedario
-├── letra en movimiento.py      # Script principal (J en movimiento + I)
+Traductor-LSM-main/
+├── letra en movimiento.py      # Script principal del traductor
+├── capturar_dataset.py         # Script para capturar datos de entrenamiento
+├── dataset_señas.csv           # Dataset con 1,500 muestras de ángulos
+├── Traductor_LSM_Demo.ipynb    # Notebook de demostración en Google Colab
 ├── descargar_modelo_mano.py    # Descarga el modelo .task de MediaPipe
 ├── requirements.txt            # Dependencias del proyecto
 ├── modelos/
-│   └── hand_landmarker.task    # Modelo de detección de manos
+│   ├── hand_landmarker.task    # Modelo de detección de manos (MediaPipe)
+│   ├── modelo_lsm.pkl          # Clasificador entrenado con scikit-learn
+│   └── label_encoder.pkl       # Codificador de etiquetas
 └── Funciones/
     ├── mediapipe_mano.py       # Configuración de MediaPipe Tasks
-    ├── normalizacionCords.py   # Cálculo de ángulos y coordenadas
-    └── condicionales.py        # Reglas para cada letra
+    ├── normalizacionCords.py   # Cálculo de ángulos por dedo
+    └── condicionales.py        # Lógica de detección por reglas
 ```
 
 ---
 
 ## Tecnologías
 
-| Herramienta   | Uso                                              |
-|---------------|--------------------------------------------------|
-| **MediaPipe** | Detección de landmarks de manos (Tasks API)      |
-| **OpenCV**    | Captura de video, dibujo y visualización         |
-| **NumPy**     | Normalización de coordenadas y cálculo de ángulos |
+| Herramienta     | Uso                                                        |
+|-----------------|------------------------------------------------------------|
+| MediaPipe       | Detección de 21 landmarks de la mano en tiempo real        |
+| OpenCV          | Captura de video y visualización                           |
+| NumPy           | Cálculo de ángulos con álgebra lineal                      |
+| scikit-learn    | Entrenamiento y uso del clasificador de señas              |
+| joblib          | Carga del modelo entrenado                                 |
+| pandas          | Manejo del dataset de entrenamiento                        |
 
 ---
 
-## Licencia
+## Autor
 
-Este proyecto se distribuye bajo **CC0 1.0 Universal (Dominio Público)**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
-
----
-
-## Mantenedor
-
-**Axel Lopez** — [@axellopez3797-ui](https://github.com/axellopez3797-ui)
-
-Versión adaptada y mantenida a partir del núcleo de dominio público original (Cesar Ortiz, Jahaziel Hernandez).
+**Axel Lopez** — CECyTEN Tepic | Módulo III Inteligencia Artificial | Mayo 2026
